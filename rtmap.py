@@ -14,7 +14,15 @@ def create_point_layer(csv_file):
     # Row filtering
     df_filtered = df[df["payload"].str.contains(r"seq \d+", na=False)]
     df_filtered = df_filtered[
-        ["rx lat", "rx long", "rx snr", "sender name", "rx elevation", "sender lat", "sender long"]
+        [
+            "rx lat",
+            "rx long",
+            "rx snr",
+            "sender name",
+            "rx elevation",
+            "sender lat",
+            "sender long",
+        ]
     ].dropna()
     df_filtered = df_filtered[
         (df_filtered["rx lat"].apply(lambda x: isinstance(x, (int, float))))
@@ -93,6 +101,7 @@ def create_map_with_layers(csv_files, output_file):
         tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         attr="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         name="Esri WorldImagery",
+        show=False,
     ).add_to(m)
 
     folium.TileLayer(
@@ -101,6 +110,7 @@ def create_map_with_layers(csv_files, output_file):
         '<a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> '
         '(<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
         name="OpenTopoMap",
+        show=False,
     ).add_to(m)
 
     # folium.TileLayer(

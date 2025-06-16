@@ -14,7 +14,7 @@ def create_point_layer(csv_file):
     # Row filtering
     df_filtered = df[df["payload"].str.contains(r"seq \d+", na=False)]
     df_filtered = df_filtered[
-        ["rx lat", "rx long", "rx snr", "sender name", "rx elevation"]
+        ["rx lat", "rx long", "rx snr", "sender name", "rx elevation", "sender lat", "sender long"]
     ].dropna()
     df_filtered = df_filtered[
         (df_filtered["rx lat"].apply(lambda x: isinstance(x, (int, float))))
@@ -57,8 +57,10 @@ def create_point_layer(csv_file):
             fill_opacity=0.7,
             popup=popup_info,
         ).add_to(layer)
+    # start point
+    start = df_filtered.iloc[0]
 
-    return layer
+    return layer, start
 
 
 def create_map_with_layers(csv_files, output_file):
@@ -101,35 +103,47 @@ def create_map_with_layers(csv_files, output_file):
         name="OpenTopoMap",
     ).add_to(m)
 
-    folium.TileLayer(
-        tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
-        name="CartoDB Positron",
-    ).add_to(m)
-
-    folium.TileLayer(
-        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/light_nolabels/{z}/{x}/{y}{r}.png",
-        attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
-        name="CartoDB Positron (No Labels)",
-    ).add_to(m)
-
-    folium.TileLayer(
-        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png",
-        attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
-        name="CartoDB Dark Matter (No Labels)",
-    ).add_to(m)
-
-    folium.TileLayer(
-        tiles="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
-        name="CartoDB Dark Matter",
-    ).add_to(m)
+    # folium.TileLayer(
+    #     tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    #     attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
+    #     name="CartoDB Positron",
+    # ).add_to(m)
+    #
+    # folium.TileLayer(
+    #     tiles="https://{s}.basemaps.cartocdn.com/rastertiles/light_nolabels/{z}/{x}/{y}{r}.png",
+    #     attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
+    #     name="CartoDB Positron (No Labels)",
+    # ).add_to(m)
+    #
+    # folium.TileLayer(
+    #     tiles="https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png",
+    #     attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
+    #     name="CartoDB Dark Matter (No Labels)",
+    # ).add_to(m)
+    #
+    # folium.TileLayer(
+    #     tiles="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    #     attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
+    #     name="CartoDB Dark Matter",
+    # ).add_to(m)
 
     # CSV layers
     for csv_file in csv_files:
-        layer = create_point_layer(csv_file)
+        layer, start = create_point_layer(csv_file)
         if layer:
             layer.add_to(m)
+            folium.Marker(
+                location=[start["sender lat"], start["sender long"]],
+                popup="Base",
+                icon=folium.Icon(
+                    color="blue",
+                    icon="info-sign",
+                    prefix="glyphicon",
+                    icon_color="white",
+                    # icon_size=(20, 20),
+                ),
+                # icon= folium.Icon('red', 'white'),
+            ).add_to(m)
 
     folium.LayerControl(collapsed=False).add_to(m)
     MiniMap(width=300, height=300, toggle_display=True, minimized=False).add_to(m)

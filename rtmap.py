@@ -87,9 +87,8 @@ def create_map_with_layers(csv_files, output_file):
         MeasureControl(
             active_color="blue",
             completed_color="blue",
-            primary_length_unit="miles",
-            secondary_length_unit="meters",
-            tertiary_length_unit="feet",
+            primary_length_unit="meters",
+            secondary_length_unit="miles",
             primary_area_unit=None,
             secondary_area_unit=None,
             tertiary_area_unit=None,
